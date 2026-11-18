@@ -1,0 +1,51 @@
+@if (inspection) {
+  <div class="inspection-heading report-heading page-hero page-hero--with-meta">
+    <div>
+      <span class="page-heading__eyebrow">Completed inspection</span>
+      <h1>{{ inspection.location }}</h1>
+      <p><i class="ph ph-map-pin ui-icon"></i> {{ inspection.address }}</p>
+    </div>
+    <div class="inspection-heading__meta">
+      <span><small>Date</small><strong>{{ formatDate(inspection.date) }}</strong></span>
+      <span><small>Time</small><strong>{{ inspection.time }}</strong></span>
+      <span><small>Representative</small><strong>{{ inspection.representative }}</strong></span>
+    </div>
+  </div>
+
+  <div class="section-heading"><div><span>Inspection record</span><h2>Workers inspected</h2></div><p>Read-only report</p></div>
+
+  <div class="worker-list report-worker-list">
+    @for (worker of inspection.workers; track worker.id) {
+      <article class="worker-card worker-card--report">
+        <header class="worker-card__header">
+          <span class="worker-card__avatar"><i class="ph ph-user-circle ui-icon"></i></span>
+          <div class="worker-card__identity">
+            <h3>{{ worker.name }} {{ worker.lastName }}</h3>
+            <div class="worker-card__meta"><span><i class="ph ph-phone ui-icon"></i> {{ worker.mobile }}</span><span><i class="ph ph-identification-card ui-icon"></i> {{ worker.idCardNumber }}</span></div>
+          </div>
+          <div class="report-signature">@if (worker.signature) { <img [src]="worker.signature" alt="Worker signature"> } @else { <span>No signature</span> }</div>
+        </header>
+        <div class="report-facts">
+          <div><small>Timesheet</small><strong [class.is-positive]="worker.timesheet" [class.is-negative]="!worker.timesheet"><i [class]="worker.timesheet ? 'ph ph-check ui-icon' : 'ph ph-x ui-icon'"></i> {{ worker.timesheet ? 'Yes' : 'No' }}</strong></div>
+          <div><small>Found at work</small><strong [class.is-positive]="worker.foundAtWork" [class.is-negative]="!worker.foundAtWork"><i [class]="worker.foundAtWork ? 'ph ph-check ui-icon' : 'ph ph-x ui-icon'"></i> {{ worker.foundAtWork ? 'Yes' : 'No' }}</strong></div>
+          <div class="report-facts__notes"><small>Other issues</small><p>{{ worker.otherIssues || 'None reported' }}</p></div>
+        </div>
+      </article>
+    } @empty {
+      <div class="empty-state"><i class="ph ph-user-minus ui-icon"></i><p>No workers assigned to this location.</p></div>
+    }
+  </div>
+
+  <div class="report-notes-grid">
+    <section class="form-card"><label>Inspector comments</label><p>{{ inspection.inspectorComments || 'No comments' }}</p></section>
+    <section class="form-card"><label>Entity comments</label><p>{{ inspection.entityComments || 'No comments' }}</p></section>
+    <section class="form-card report-entity-signature"><label>Representative signature</label>@if (inspection.representativeSignature) { <img [src]="inspection.representativeSignature" alt="Representative signature"> } @else { <p>No signature</p> }</section>
+  </div>
+
+  <div class="inspection-actions">
+    <a routerLink="/archive" class="back-button"><i class="ph ph-caret-left ui-icon"></i> Back to archive</a>
+  </div>
+} @else {
+  @if (loading()) { <app-data-loader label="Preparing inspection report" /> }
+  @else { <div class="empty-state"><i class="ph ph-warning-circle"></i><p>{{ error || 'Inspection not found.' }}</p></div> }
+}

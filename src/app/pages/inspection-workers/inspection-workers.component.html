@@ -1,0 +1,92 @@
+@if (inspection) {
+  <div class="inspection-heading page-hero page-hero--with-meta">
+    <div>
+      <span class="page-heading__eyebrow">Inspection details</span>
+      <h1>{{ inspection.location }}</h1>
+      <p><i class="ph ph-map-pin ui-icon"></i> {{ inspection.address }}</p>
+    </div>
+    <div class="inspection-heading__meta">
+      <span><small>Date</small><strong>{{ formatDate(inspection.date) }}</strong></span>
+      <span><small>Time</small><strong>{{ inspection.time }}</strong></span>
+      <span><small>Representative</small><strong>{{ inspection.representative }}</strong></span>
+    </div>
+  </div>
+
+  <form class="inspection-workflow" (ngSubmit)="continue()">
+    <div class="inspection-form">
+      <div class="section-heading">
+        <div><span>Step 1 of 2</span><h2>Workers on site</h2></div>
+        <p>Complete attendance details and collect signatures.</p>
+      </div>
+
+      <div class="worker-list">
+        @for (worker of inspection.workers; track worker.id) {
+          <article class="worker-card">
+            <header class="worker-card__header">
+              <span class="worker-card__avatar"><i class="ph ph-user-circle ui-icon"></i></span>
+              <div class="worker-card__identity">
+                <h3>{{ worker.name }} {{ worker.lastName }}</h3>
+                <div class="worker-card__meta">
+                  <span><i class="ph ph-phone ui-icon"></i> {{ worker.mobile }}</span>
+                  <span><i class="ph ph-identification-card ui-icon"></i> {{ worker.idCardNumber }}</span>
+                </div>
+              </div>
+              <button type="button" class="worker-signature" (click)="openSignature(worker)">
+                @if (worker.signature) {
+                  <img class="img-sig" [src]="worker.signature" alt="Worker signature">
+                } @else {
+                  <span class="span-sig span-show"><i class="ph ph-signature ui-icon"></i><em>Add signature</em></span>
+                }
+              </button>
+            </header>
+            <div class="worker-card__body">
+              <fieldset class="decision-field">
+                <legend>Timesheet available?</legend>
+                <div class="segmented-control">
+                  <label><input type="radio" [name]="'timesheet-' + worker.id" [(ngModel)]="worker.timesheet" [value]="true"><span>Yes</span></label>
+                  <label><input type="radio" [name]="'timesheet-' + worker.id" [(ngModel)]="worker.timesheet" [value]="false"><span>No</span></label>
+                </div>
+              </fieldset>
+              <fieldset class="decision-field">
+                <legend>Worker found on site?</legend>
+                <div class="segmented-control">
+                  <label><input type="radio" [name]="'found-' + worker.id" [(ngModel)]="worker.foundAtWork" [value]="true"><span>Yes</span></label>
+                  <label><input type="radio" [name]="'found-' + worker.id" [(ngModel)]="worker.foundAtWork" [value]="false"><span>No</span></label>
+                </div>
+              </fieldset>
+              <div class="worker-card__issues">
+                <label [for]="'issues-' + worker.id">Other issues <small>Optional</small></label>
+                <textarea [id]="'issues-' + worker.id" [(ngModel)]="worker.otherIssues" [name]="'issues-' + worker.id" placeholder="Add a note..."></textarea>
+              </div>
+            </div>
+          </article>
+        } @empty {
+          <div class="empty-state"><i class="ph ph-user-minus ui-icon"></i><p>No workers assigned to this location.</p></div>
+        }
+      </div>
+
+      <div class="row mt-20">
+        <div class="col-md-12">
+          <div class="form-card">
+            <label for="inspectorComments">Inspector comments <small>Optional</small></label>
+            <textarea id="inspectorComments" class="entity-comments" [(ngModel)]="inspection.inspectorComments" name="comments" placeholder="Add notes about this inspection..."></textarea>
+          </div>
+        </div>
+      </div>
+      @if (error) { <div class="form-error"><i class="ph ph-warning-circle ui-icon"></i>{{ error }}</div> }
+    </div>
+
+    <div class="inspection-action-dock" role="group" aria-label="Inspection actions">
+      <div class="inspection-actions">
+        <a routerLink="/inspection-plan" class="back-button"><i class="ph ph-caret-left ui-icon"></i>Back</a>
+        <span class="inspection-action-dock__status"><small>Step 1 of 2</small><strong>Workers and attendance</strong></span>
+        <button type="submit" class="next-button" [disabled]="loading()">{{ loading() ? 'Saving...' : 'Continue to declaration' }} <i class="ph ph-caret-right ui-icon"></i></button>
+      </div>
+    </div>
+  </form>
+
+  <app-signature-dialog [open]="signatureOpen" eyebrow="Worker confirmation" title="Add signature" (closed)="signatureOpen = false" (confirmed)="confirmSignature($event)" />
+} @else {
+  @if (loading()) { <app-data-loader label="Loading inspection details" /> }
+  @else { <div class="empty-state"><i class="ph ph-warning-circle"></i><p>{{ error || 'Inspection not found.' }}</p></div> }
+}

@@ -1,0 +1,56 @@
+<app-page-header eyebrow="Completed work" title="Inspection archive" description="Search past inspections and open their details or report." />
+
+<div class="page-list archive-page">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-list__header">
+        <div class="archive-filters">
+          <h4 class="color-blue">Filter by</h4>
+          <div class="mr-10"><strong>Location</strong><br><input type="text" [(ngModel)]="location" placeholder="Location name"></div>
+          <div class="mr-10"><strong>Month</strong><br><select [(ngModel)]="month">@for (item of months; track item.value) { <option [value]="item.value">{{ item.label }}</option> }</select></div>
+          <div class="mr-10"><strong>Year</strong><br><select [(ngModel)]="year">@for (item of years; track item) { <option [value]="item">{{ item }}</option> }</select></div>
+          <div class="archive-filter-actions">
+            <button type="button" class="archive-filter-submit" aria-label="Apply filters" title="Apply filters" [disabled]="loading()" (click)="apply()"><i class="ph ph-magnifying-glass ui-icon"></i></button>
+            <button type="button" class="delete-filter" title="Reset filters" [disabled]="loading()" (click)="reset()"><i class="ph ph-arrow-counter-clockwise ui-icon"></i><span>Reset</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      @if (loading()) {
+        <app-data-loader label="Searching the inspection archive" />
+      } @else {
+      <div class="site-table archive-table">
+        <ul class="site-table__top">
+          <li style="width:15%"><span>DATE</span></li><li style="width:55%"><span>LOCATION</span></li><li style="width:10%;justify-content:center"><span>STATUS</span></li><li style="width:10%;justify-content:center"><span>DETAILS</span></li><li style="width:10%;justify-content:center"><span>REPORT</span></li>
+        </ul>
+        @for (item of results(); track item.id) {
+          <ul>
+            <li style="width:15%">{{ formatDate(item.date) }}</li>
+            <li style="width:55%">{{ item.location }}</li>
+            <li style="width:10%;justify-content:center"><i class="ph ph-check ui-icon archive-status-icon" title="Completed"></i></li>
+            <li style="width:10%;justify-content:center"><a class="archive-icon-action" [routerLink]="['/inspection', item.id, 'report']" aria-label="View inspection details" title="View details"><i class="ph ph-magnifying-glass ui-icon"></i></a></li>
+            <li style="width:10%;justify-content:center">
+              @if (item.reportAvailable) { <button type="button" class="archive-icon-action archive-icon-action--report" (click)="openReport(item.id)" aria-label="Open PDF report" title="Open PDF report"><i class="ph ph-download-simple ui-icon"></i></button> }
+              @else { <span class="archive-icon-action is-disabled" aria-label="Report not available" title="Report not available"><i class="ph ph-minus ui-icon"></i></span> }
+            </li>
+          </ul>
+        } @empty {
+          <p class="text-center empty">No inspections found for the selected filters.</p>
+        }
+      </div>
+      @if (pageCount > 1) {
+        <nav class="archive-pagination" aria-label="Archive pages">
+          <button type="button" [disabled]="page === 0 || loading()" (click)="previous()"><i class="ph ph-caret-left ui-icon"></i></button>
+          <span>{{ page + 1 }} / {{ pageCount }}</span>
+          <button type="button" [disabled]="page + 1 >= pageCount || loading()" (click)="next()"><i class="ph ph-caret-right ui-icon"></i></button>
+        </nav>
+      }
+      @if (error()) { <p class="form-error">{{ error() }}</p> }
+      }
+    </div>
+  </div>
+</div>

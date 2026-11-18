@@ -1,0 +1,68 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { Inspector } from '../models/inspector.models';
+import { InspectionService } from './inspection.service';
+import { API_BASE } from '../api.config';
+
+export const SESSION_KEY = 'waman-inspector-session';
+
+interface ApiInspector extends Inspector { authToken: string; }
+interface StoredSession { inspector: Inspector; token: string; }
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private readonly stored = this.readSession();
+  readonly currentInspector = signal<Inspector | null>(this.stored?.inspector ?? null);
+
+  constructor(private http: HttpClient, private router: Router, private inspections: InspectionService) {}
+
+  isAuthenticated(): boolean { return !!this.currentInspector() && !!this.token(); }
+  token(): string | null { return this.readSession()?.token ?? null; }
+
+  async login(email: string, password: string): Promise<boolean> {
+    if (!email.trim() || !password.trim()) return false;
+    try {
+      const response = await firstValueFrom(this.http.post<ApiInspector>(`${API_BASE}/Inspectors/Login`, { email: email.trim(), pwd: password }));
+      if (!response?.id || !response.authToken) return false;
+      const inspector: Inspector = {
+        id: response.id,
+        name: response.name,
+        lastName: response.lastName,
+        email: response.email,
+        inspectorCodeId: response.inspectorCodeId
+      };
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ inspector, token: response.authToken } satisfies StoredSession));
+      this.inspections.reset();
+      this.currentInspector.set(inspector);
+      return true;
+    } catch { return false; }
+  }
+
+  async restoreSession(): Promise<boolean> {
+    const session = this.readSession();
+    this.currentInspector.set(session?.inspector ?? null);
+    return !!session?.token && !!session.inspector;
+  }
+
+  async logout(): Promise<void> {
+    this.clearSession();
+    await this.router.navigateByUrl('/login');
+  }
+
+  clearSession(): void {
+    sessionStorage.removeItem(SESSION_KEY);
+    this.currentInspector.set(null);
+    this.inspections.reset();
+  }
+
+  private readSession(): StoredSession | null {
+    try {
+      const value = sessionStorage.getItem(SESSION_KEY);
+      if (!value) return null;
+      const parsed = JSON.parse(value) as StoredSession;
+      return parsed?.inspector && parsed?.token ? parsed : null;
+    } catch { return null; }
+  }
+}

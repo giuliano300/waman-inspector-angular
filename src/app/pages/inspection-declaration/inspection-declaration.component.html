@@ -1,0 +1,101 @@
+@if (inspection) {
+  <form class="inspection-workflow">
+    <div class="inspection-heading page-hero page-hero--with-meta">
+      <div>
+        <span class="page-heading__eyebrow">Representative declaration</span>
+        <h1>{{ inspection.location }}</h1>
+        <p>Review the final details and close the inspection.</p>
+      </div>
+      <div class="inspection-heading__meta">
+        <span><small>Date</small><strong>{{ formatDate(inspection.date) }}</strong></span>
+        <span><small>Time</small><strong>{{ inspection.time }}</strong></span>
+        <span><small>Representative</small><strong>{{ inspection.representative }}</strong></span>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <section class="summary-card">
+        <div class="summary-card__title"><i class="ph ph-user-circle ui-icon"></i><span>Representative</span></div>
+        <div class="summary-card__body"><p><strong>Full name:</strong>&nbsp;<span>{{ inspection.representative }}</span><br><strong>Job title:</strong>&nbsp;<span>{{ inspection.jobTitle }}</span></p></div>
+      </section>
+      <section class="summary-card">
+        <div class="summary-card__title"><i class="ph ph-users-three ui-icon"></i><span>Workers on site</span></div>
+        <div class="summary-card__body summary-card__workers">
+          @for (worker of inspection.workers; track worker.id) { <span><strong>{{ worker.name }} {{ worker.lastName }}</strong><small>{{ worker.jobType }}</small></span> }
+          @empty { <p>No workers assigned to this location.</p> }
+        </div>
+      </section>
+    </div>
+
+    <div class="page-list mt-30">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="flex-column">
+            <label for="entityComment" class="field-label">Entity comments <small>Optional</small></label>
+            <textarea id="entityComment" class="entity-comments" [(ngModel)]="inspection.entityComments" name="entityComment" placeholder="Add comments from the entity..."></textarea>
+          </div>
+        </div>
+        <div class="col-md-12 mt-20">
+          <div class="declaration-list">
+            <fieldset class="declaration-card">
+              <div class="declaration-card__copy"><span>01</span><div><legend>Inspection confirmation</legend><p>Was the inspection carried out as reported and to the entity's satisfaction?</p></div></div>
+              <div class="segmented-control declaration-card__choice">
+                <label><input type="radio" name="confirmation" [(ngModel)]="inspection.confirmation" [value]="true"><span>Yes</span></label>
+                <label><input type="radio" name="confirmation" [(ngModel)]="inspection.confirmation" [value]="false"><span>No</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="declaration-card">
+              <div class="declaration-card__copy"><span>02</span><div><legend>Representative present</legend><p>If present, the facility representative must sign below. If absent, provide a reason.</p></div></div>
+              <div class="segmented-control declaration-card__choice">
+                <label><input type="radio" name="present" [(ngModel)]="inspection.representativePresent" [value]="true"><span>Yes</span></label>
+                <label><input type="radio" name="present" [(ngModel)]="inspection.representativePresent" [value]="false"><span>No</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="declaration-card">
+              <div class="declaration-card__copy"><span>03</span><div><legend>Administrative review</legend><p>Should this report be sent to administration to review any discrepancies?</p></div></div>
+              <div class="segmented-control declaration-card__choice">
+                <label><input type="radio" name="administration" [(ngModel)]="inspection.sendToAdministration" [value]="true"><span>Yes</span></label>
+                <label><input type="radio" name="administration" [(ngModel)]="inspection.sendToAdministration" [value]="false"><span>No</span></label>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        @if (!inspection.representativePresent) {
+          <div class="col-md-12 mt-20 div-absent-comments">
+            <div class="flex-column"><label for="absence" class="field-label">Reason for representative's absence</label><textarea id="absence" class="absent-comments" [(ngModel)]="inspection.absenceComment" name="absenceComment" placeholder="Provide a short explanation..."></textarea></div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (inspection.representativePresent) {
+      <div class="row row-signature">
+        <div class="signature-field">
+          <div class="signature-field__copy">
+            <span class="signature-field__icon"><i class="ph ph-signature ui-icon"></i></span>
+            <div><label class="field-label" for="signature-trigger">Representative signature</label><p>Ask the representative to sign using a finger or stylus.</p></div>
+          </div>
+          <button id="signature-trigger" type="button" class="signature-trigger" (click)="signatureOpen = true">
+            @if (inspection.representativeSignature) { <img id="sig-image" [src]="inspection.representativeSignature" alt="Representative signature"> }
+            @else { <span id="box-signature"><i class="ph ph-pen-nib ui-icon"></i><strong>Tap to sign</strong><small>Signature required</small></span> }
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (error) { <div class="form-error"><i class="ph ph-warning-circle ui-icon"></i>{{ error }}</div> }
+
+    <div class="inspection-action-dock" role="group" aria-label="Inspection actions">
+      <div class="inspection-actions">
+        <a [routerLink]="['/inspection', id, 'workers']" class="back-button"><i class="ph ph-caret-left ui-icon"></i>Back</a>
+        <span class="inspection-action-dock__status"><small>Step 2 of 2</small><strong>Review and declaration</strong></span>
+        <button type="button" class="next-button" [disabled]="loading()" (click)="closeInspection()">{{ loading() ? 'Closing...' : 'Close inspection' }} <i class="ph ph-check-circle ui-icon"></i></button>
+      </div>
+    </div>
+  </form>
+
+  <app-signature-dialog [open]="signatureOpen" eyebrow="Entity confirmation" title="Representative signature" (closed)="signatureOpen = false" (confirmed)="confirm($event)" />
+} @else {
+  @if (loading()) { <app-data-loader label="Loading declaration" /> }
+  @else { <div class="empty-state"><i class="ph ph-warning-circle"></i><p>{{ error || 'Inspection not found.' }}</p></div> }
+}

@@ -1,0 +1,3 @@
+import { Component } from '@angular/core';import { InspectionService } from '../../core/services/inspection.service';import { DataLoaderComponent } from '../../shared/data-loader/data-loader.component';import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+@Component({selector:'app-info-box',standalone:true,imports:[PageHeaderComponent,DataLoaderComponent],templateUrl:'./info-box.component.html',styleUrl:'./info-box.component.scss'})
+export class InfoBoxComponent{readonly notices=this.data.notices;readonly loading=this.data.loading;constructor(private data:InspectionService){void data.loadNotices().catch(()=>undefined)}}

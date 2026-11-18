@@ -1,0 +1,44 @@
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <a routerLink="/dashboard" class="app-brand" aria-label="Waman dashboard">
+      <img src="/assets/images/Logo.png" alt="Waman" width="142" height="54">
+    </a>
+
+    <nav class="app-nav" id="main-navigation" aria-label="Main navigation">
+      <a routerLink="/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" class="app-nav__item">
+        <i class="ph ph-squares-four ui-icon"></i><span>Overview</span>
+      </a>
+      @if (hasTodayInspections()) {
+        <a routerLink="/inspection-plan" routerLinkActive="is-active" class="app-nav__item">
+          <i class="ph ph-calendar-check ui-icon"></i><span>Daily plan</span>
+        </a>
+      } @else {
+        <span class="app-nav__item is-disabled" aria-disabled="true" title="No inspections scheduled today">
+          <i class="ph ph-calendar-x ui-icon"></i><span>Daily plan</span>
+        </span>
+      }
+      <a routerLink="/archive" routerLinkActive="is-active" class="app-nav__item">
+        <i class="ph ph-archive ui-icon"></i><span>Archive</span>
+      </a>
+      <a routerLink="/info-box" routerLinkActive="is-active" class="app-nav__item">
+        <i class="ph ph-chat-teardrop-text ui-icon"></i><span>Info box</span>
+      </a>
+    </nav>
+
+    <div class="app-user">
+      <div class="app-user__avatar"><i class="ph ph-user-circle ui-icon"></i></div>
+      <div class="app-user__copy"><small>Inspector</small><strong>{{ auth.currentInspector()?.name }} {{ auth.currentInspector()?.lastName }}</strong></div>
+      <button type="button" class="app-user__logout" aria-label="Logout" title="Logout" (click)="auth.logout()"><i class="ph ph-sign-out ui-icon"></i></button>
+    </div>
+  </aside>
+
+  <section class="app-workspace">
+    <header class="app-topbar">
+      <a routerLink="/dashboard" class="app-topbar__brand"><img src="/assets/images/Logo.png" alt="Waman" width="112" height="43"></a>
+      <span>{{ auth.currentInspector()?.name }} {{ auth.currentInspector()?.lastName }}</span>
+      <button type="button" aria-label="Logout" (click)="auth.logout()"><i class="ph ph-sign-out ui-icon"></i></button>
+    </header>
+    <main class="container-fluid main app-main"><router-outlet /></main>
+  </section>
+</div>
+<footer class="ownership-footer"><span>Developed by <strong>EasyWayTechnology</strong></span></footer>

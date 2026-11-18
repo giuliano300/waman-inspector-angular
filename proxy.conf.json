@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://auth.waman.app",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "warn"
+  }
+}

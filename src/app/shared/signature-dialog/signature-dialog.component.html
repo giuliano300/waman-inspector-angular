@@ -1,0 +1,26 @@
+@if (open) {
+  <div class="container-popup signature-popup" role="dialog" aria-modal="true" aria-labelledby="signature-dialog-title">
+    <section class="signature-dialog">
+      <header class="signature-dialog__header">
+        <span class="signature-dialog__icon"><i class="ph ph-signature ui-icon"></i></span>
+        <div class="signature-dialog__copy">
+          <span class="signature-dialog__eyebrow">{{ eyebrow }}</span>
+          <h2 id="signature-dialog-title">{{ title }}</h2>
+          <p>Sign naturally with a finger or stylus inside the area below.</p>
+        </div>
+        <button type="button" class="close-popup" aria-label="Close signature" (click)="close()"><span class="signature-dialog__close-glyph" aria-hidden="true">&times;</span></button>
+      </header>
+      <div class="signature-dialog__body">
+        <div class="signature-dialog__canvas-heading"><strong>Signature area</strong><span>Keep the signature above the line</span></div>
+        <div class="signature-dialog__canvas-wrap">
+          <canvas id="sig-canvas" #canvas (pointerdown)="start($event)" (pointermove)="draw($event)" (pointerup)="stop()" (pointercancel)="stop()"></canvas>
+          <span class="signature-dialog__line" aria-hidden="true"></span>
+        </div>
+      </div>
+      <footer class="signature-dialog__actions">
+        <button type="button" class="btn-sign signature-dialog__clear" (click)="clear()"><i class="ph ph-eraser ui-icon"></i>Clear</button>
+        <button type="button" class="btn-sign signature-dialog__confirm" [disabled]="!hasInk" (click)="confirm()"><i class="ph ph-check-circle ui-icon"></i>Confirm signature</button>
+      </footer>
+    </section>
+  </div>
+}

@@ -1,0 +1,70 @@
+<section class="dashboard-hero page-hero">
+  <div class="dashboard-hero__copy">
+    <span class="page-heading__eyebrow">{{ todayLabel }}</span>
+    <h1>{{ greeting }}, {{ auth.currentInspector()?.name }}</h1>
+    @if (loading()) {
+      <p>Loading today’s schedule...</p>
+    } @else if (inspections().length) {
+      <p>You have <strong>{{ inspections().length }}</strong> {{ inspections().length === 1 ? 'inspection' : 'inspections' }} scheduled today.</p>
+    } @else {
+      <p>Your schedule is clear for today.</p>
+    }
+  </div>
+  <div class="dashboard-hero__mark" aria-hidden="true"><span></span><span></span><span></span></div>
+</section>
+
+<section class="quick-actions" aria-label="Quick actions">
+  <div class="quick-action">
+    @if (inspections().length) {
+      <a routerLink="/inspection-plan" class="enabled">
+        <span class="quick-action__icon"><i class="ph ph-calendar-check ui-icon"></i></span>
+        <span class="quick-action__copy"><strong>Today's plan</strong><small>Open your inspection schedule</small></span>
+        <i class="ph ph-caret-right ui-icon quick-action__arrow"></i>
+      </a>
+    } @else {
+      <div class="quick-action__link disabled" aria-disabled="true" title="No inspections available for today">
+        <span class="quick-action__icon"><i class="ph ph-calendar-x ui-icon"></i></span>
+        <span class="quick-action__copy"><strong>Today's plan</strong><small>No inspections scheduled</small></span>
+      </div>
+    }
+  </div>
+  <div class="quick-action">
+    <a routerLink="/archive">
+      <span class="quick-action__icon"><i class="ph ph-archive ui-icon"></i></span>
+      <span class="quick-action__copy"><strong>Archive</strong><small>Review completed inspections</small></span>
+      <i class="ph ph-caret-right ui-icon quick-action__arrow"></i>
+    </a>
+  </div>
+  <div class="quick-action">
+    <a routerLink="/info-box">
+      <span class="quick-action__icon"><i class="ph ph-chat-teardrop-text ui-icon"></i></span>
+      <span class="quick-action__copy"><strong>Info box</strong><small>Read notices and updates</small></span>
+      <i class="ph ph-caret-right ui-icon quick-action__arrow"></i>
+    </a>
+  </div>
+</section>
+
+<section class="content-card schedule-card">
+  <div class="content-card__header">
+    <div><span class="content-card__eyebrow">Schedule</span><h2>Today's inspections</h2></div>
+    @if (inspections().length) { <a routerLink="/inspection-plan" class="text-link">View plan <i class="ph ph-arrow-right ui-icon"></i></a> }
+  </div>
+  <div class="content-card__body">
+    @if (loading()) {
+      <app-data-loader label="Loading today’s inspections" [compact]="true" />
+    } @else {
+    <div class="site-table site-table-dashboard">
+      <ul class="site-table__top">
+        <li style="width:13%"><span>DATE</span></li><li style="width:10%"><span>TIME</span></li><li style="width:30%"><span>LOCATION</span></li><li style="width:47%"><span>ADDRESS</span></li>
+      </ul>
+      @for (item of inspections(); track item.id) {
+        <ul class="inspection-item">
+          <li style="width:13%">{{ formatDate(item.date) }}</li><li style="width:10%">{{ item.time }}</li><li style="width:30%"><strong class="color-blue">{{ item.location }}</strong></li><li style="width:47%">{{ item.address }} - {{ item.city }}</li>
+        </ul>
+      } @empty {
+        <p class="text-center empty">No inspections scheduled for today.</p>
+      }
+    </div>
+    }
+  </div>
+</section>

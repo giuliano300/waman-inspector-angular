@@ -1,0 +1,18 @@
+<app-page-header eyebrow="Notices and updates" title="Info box" description="Operational information shared with inspectors." />
+
+<div class="row">
+  <div class="col-md-12">
+    @if (loading()) {
+      <app-data-loader label="Loading notices" />
+    } @else {
+      @for (notice of notices(); track notice.id) {
+      <div class="info-box">
+        <h2><span>NOV</span><br>{{ notice.date.slice(8, 10) }}</h2>
+        <section><h4>{{ notice.title }}</h4><p>{{ notice.description }}</p></section>
+      </div>
+    } @empty {
+      <div class="empty-state info-empty"><i class="ph ph-chat-teardrop-text ui-icon"></i><h2>Nothing new</h2><p>No information is available right now.</p></div>
+      }
+    }
+  </div>
+</div>

@@ -1,0 +1,34 @@
+<app-page-header [eyebrow]="todayLabel" title="Daily inspection plan" description="Open the route or start the inspection when you arrive." />
+
+<div class="row">
+  <div class="col-md-12">
+    @if (loading()) {
+      <app-data-loader label="Preparing your daily plan" />
+    } @else {
+    <div class="planning">
+      @for (item of inspections(); track item.id) {
+        <div class="planning__item">
+          <div class="planning__item-info">
+            <section class="planning__meta">
+              <span class="mr-30"><i class="ph ph-calendar-check ui-icon color-primary"></i> {{ formatDate(item.date) }}</span>
+              <span><i class="ph ph-clock ui-icon color-primary"></i> {{ item.time }}</span>
+            </section>
+            <h2>{{ item.location }}</h2>
+            <p>{{ item.address }} - {{ item.city }}</p>
+          </div>
+          <div class="planning__item-action">
+            <a [href]="maps(item)" target="_blank" rel="noopener" class="planning-action planning-action--navigate">
+              <i class="ph ph-navigation-arrow ui-icon"></i><span>Navigate to<br>Location</span>
+            </a>
+            <a [routerLink]="['/inspection', item.id, 'workers']" class="planning-action planning-action--start">
+              <i class="ph ph-play-circle ui-icon"></i><span>Start<br>Inspection</span>
+            </a>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state"><i class="ph ph-calendar-x ui-icon"></i><p>No inspections scheduled for today.</p></div>
+      }
+    </div>
+    }
+  </div>
+</div>
