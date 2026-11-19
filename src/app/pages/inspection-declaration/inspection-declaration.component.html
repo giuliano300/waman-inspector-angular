@@ -62,7 +62,11 @@
         </div>
         @if (!inspection.representativePresent) {
           <div class="col-md-12 mt-20 div-absent-comments">
-            <div class="flex-column"><label for="absence" class="field-label">Reason for representative's absence</label><textarea id="absence" class="absent-comments" [(ngModel)]="inspection.absenceComment" name="absenceComment" placeholder="Provide a short explanation..."></textarea></div>
+            <div class="flex-column">
+              <label for="absence" class="field-label">Reason for representative's absence <small>Minimum {{ minimumAbsenceReasonLength }} characters</small></label>
+              <textarea id="absence" class="absent-comments" [(ngModel)]="inspection.absenceComment" name="absenceComment" placeholder="Provide a short explanation..." [attr.minlength]="minimumAbsenceReasonLength" aria-describedby="absence-requirement"></textarea>
+              <small id="absence-requirement" class="field-requirement" [class.is-valid]="absenceReasonLength >= minimumAbsenceReasonLength" aria-live="polite">{{ absenceReasonLength }}/{{ minimumAbsenceReasonLength }} characters minimum</small>
+            </div>
           </div>
         }
       </div>

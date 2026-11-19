@@ -8,6 +8,7 @@ import { DataLoaderComponent } from '../../shared/data-loader/data-loader.compon
 
 @Component({ selector: 'app-inspection-declaration', standalone: true, imports: [FormsModule, RouterLink, SignatureDialogComponent, DataLoaderComponent], templateUrl: './inspection-declaration.component.html', styleUrl: './inspection-declaration.component.scss' })
 export class InspectionDeclarationComponent implements OnInit {
+  readonly minimumAbsenceReasonLength = 10;
   readonly id = Number(this.route.snapshot.paramMap.get('id'));
   readonly loading = this.data.loading;
   inspection?: Inspection;
@@ -23,10 +24,16 @@ export class InspectionDeclarationComponent implements OnInit {
 
   confirm(value: string): void { if (this.inspection) this.inspection.representativeSignature = value; this.signatureOpen = false; }
 
+  get absenceReasonLength(): number { return this.inspection?.absenceComment.trim().length ?? 0; }
+
   async closeInspection(): Promise<void> {
     if (!this.inspection) return;
     if (this.inspection.representativePresent && !this.inspection.representativeSignature) { this.error = 'Representative signature is required.'; return; }
-    if (!this.inspection.representativePresent && !this.inspection.absenceComment.trim()) { this.error = 'Please provide a reason for the representative’s absence.'; return; }
+    if (!this.inspection.representativePresent && this.absenceReasonLength < this.minimumAbsenceReasonLength) {
+      this.error = `Please enter at least ${this.minimumAbsenceReasonLength} characters for the representative’s absence. You have entered ${this.absenceReasonLength}.`;
+      return;
+    }
+    this.inspection.absenceComment = this.inspection.absenceComment.trim();
     this.error = '';
     try {
       await this.data.saveEnd(this.inspection);
