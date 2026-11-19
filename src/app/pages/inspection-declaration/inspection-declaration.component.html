@@ -61,7 +61,7 @@
           </div>
         </div>
         @if (!inspection.representativePresent) {
-          <div class="col-md-12 mt-20 div-absent-comments">
+          <div class="col-md-12 mt-20 absence-reason-panel">
             <div class="flex-column">
               <label for="absence" class="field-label">Reason for representative's absence <small>Minimum {{ minimumAbsenceReasonLength }} characters</small></label>
               <textarea id="absence" class="absent-comments" [(ngModel)]="inspection.absenceComment" name="absenceComment" placeholder="Provide a short explanation..." [attr.minlength]="minimumAbsenceReasonLength" aria-describedby="absence-requirement"></textarea>

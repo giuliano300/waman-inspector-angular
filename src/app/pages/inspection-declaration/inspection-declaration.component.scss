@@ -1,5 +1,15 @@
 /* Visual styles are shared with the original Inspector implementation. */
 
+.absence-reason-panel {
+  display: block;
+  animation: reveal-absence-reason .18s ease-out;
+}
+
+@keyframes reveal-absence-reason {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .field-requirement {
   display: block;
   margin-top: 8px;
