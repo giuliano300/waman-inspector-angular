@@ -42,13 +42,24 @@ export class AuthService {
 
   async restoreSession(): Promise<boolean> {
     const session = this.readSession();
-    this.currentInspector.set(session?.inspector ?? null);
-    return !!session?.token && !!session.inspector;
+    if (!session?.token || !session.inspector) return false;
+    try {
+      await firstValueFrom(this.http.get(`${API_BASE}/Inspectors/${session.inspector.id}`));
+      this.currentInspector.set(session.inspector);
+      return true;
+    } catch {
+      this.clearSession();
+      return false;
+    }
   }
 
   async logout(): Promise<void> {
-    this.clearSession();
-    await this.router.navigateByUrl('/login');
+    try {
+      if (this.token()) await firstValueFrom(this.http.post(`${API_BASE}/Authentication/Logout`, {}));
+    } finally {
+      this.clearSession();
+      await this.router.navigateByUrl('/login');
+    }
   }
 
   clearSession(): void {

@@ -193,7 +193,7 @@ export class InspectionService {
   }
 
   async changePassword(guid: string, password: string): Promise<boolean> {
-    return await firstValueFrom(this.http.get<boolean>(`${API_BASE}/ChangePwdRequests/UpdatePasswordInspectors`, { params: { guid, newPwd: password } }));
+    return await firstValueFrom(this.http.post<boolean>(`${API_BASE}/ChangePwdRequests/ResetInspectorPassword`, { guid, newPwd: password }));
   }
 
   private mapInspection(raw: LegacyInspection): Inspection {
@@ -268,7 +268,8 @@ export class InspectionService {
     const signature = value?.trim();
     if (!signature) return undefined;
     if (/^(data:|blob:|https?:\/\/)/i.test(signature)) return signature;
-    return `${API_ORIGIN}/${signature.replace(/^~?\/+/, '')}`;
+    const origin = API_BASE.startsWith('/') ? window.location.origin : API_ORIGIN;
+    return `${origin}/${signature.replace(/^~?\/+/, '')}`;
   }
 
   private signatureForSave(value?: string): string {

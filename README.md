@@ -1,5 +1,9 @@
 # Waman Inspector — Angular
 
+## Local integration and security — 20 November 2026
+
+Use `npm run start:local` for port 4211 and WAMAN API `http://localhost:5051`; ordinary `npm start` retains its previous production-targeting proxy. Logout now revokes the server token; session restoration validates the active inspector. The shared API scopes every supported operation to the assigned inspector and rejects editing closed visits. Reports use short-lived protected URLs. Password reset sends a POST body, requires 12–128 characters and a single-use link less than 30 minutes old. Old undated reset links must be requested again.
+
 Tablet-first Angular 18 implementation of the Waman Inspector area. Components use
 standalone APIs, lazy routes and separate TypeScript, HTML and SCSS files.
 

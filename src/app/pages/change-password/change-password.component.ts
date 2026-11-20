@@ -14,8 +14,8 @@ export class ChangePasswordComponent {
   constructor(private route: ActivatedRoute, private data: InspectionService) {}
 
   async submit(): Promise<void> {
-    const valid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(this.password);
-    if (!valid) { this.message = 'Use at least 8 characters, one uppercase, one lowercase and one number.'; return; }
+    const valid = this.password.length >= 12 && this.password.length <= 128;
+    if (!valid) { this.message = 'Use a password of 12 to 128 characters.'; return; }
     if (this.password !== this.confirmation) { this.message = 'The passwords do not match.'; return; }
     if (!this.guid) { this.message = 'This password reset link is invalid or expired.'; return; }
 
