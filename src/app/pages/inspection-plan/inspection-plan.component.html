@@ -20,8 +20,8 @@
             <a [href]="maps(item)" target="_blank" rel="noopener" class="planning-action planning-action--navigate">
               <i class="ph ph-navigation-arrow ui-icon"></i><span>Navigate to<br>Location</span>
             </a>
-            <a [routerLink]="['/inspection', item.id, 'workers']" class="planning-action planning-action--start">
-              <i class="ph ph-play-circle ui-icon"></i><span>Start<br>Inspection</span>
+            <a [routerLink]="['/inspection', item.id, 'workers']" (click)="startInspection(item, $event)" class="planning-action planning-action--start" [attr.aria-disabled]="starting() !== null">
+              <i class="ph ph-play-circle ui-icon"></i><span>{{ starting() === item.id ? 'Starting GPS...' : 'Start' }}<br>Inspection</span>
             </a>
           </div>
         </div>
@@ -29,6 +29,7 @@
         <div class="empty-state"><i class="ph ph-calendar-x ui-icon"></i><p>No inspections scheduled for today.</p></div>
       }
     </div>
+    @if (trackingError()) { <div class="empty-state"><i class="ph ph-warning-circle"></i><p>{{ trackingError() }}</p></div> }
     }
   </div>
 </div>

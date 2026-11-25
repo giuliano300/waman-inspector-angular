@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Inspection } from '../../core/models/inspector.models';
 import { InspectionService } from '../../core/services/inspection.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { SignatureDialogComponent } from '../../shared/signature-dialog/signature-dialog.component';
 import { DataLoaderComponent } from '../../shared/data-loader/data-loader.component';
 
@@ -15,7 +16,7 @@ export class InspectionDeclarationComponent implements OnInit {
   signatureOpen = false;
   error = '';
 
-  constructor(private route: ActivatedRoute, private router: Router, private data: InspectionService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private data: InspectionService, private tracking: TrackingService) {}
 
   async ngOnInit(): Promise<void> {
     try { this.inspection = await this.data.loadInspection(this.id); }
@@ -37,7 +38,18 @@ export class InspectionDeclarationComponent implements OnInit {
     this.error = '';
     try {
       await this.data.saveEnd(this.inspection);
+      let stopIntent: string | undefined;
+      const remainingInspections = await this.data.loadToday(true);
+      if (remainingInspections.length === 0) {
+        stopIntent = this.tracking.stopIntent();
+        try {
+          await this.tracking.stopMission();
+        } catch (trackingError) {
+          console.error('GPS tracking could not be closed through the API.', trackingError);
+        }
+      }
       await this.router.navigate(['/inspection', this.id, 'report']);
+      if (stopIntent) window.location.href = stopIntent;
     } catch { this.error = 'The inspection could not be closed. Check the connection and try again.'; }
   }
 
