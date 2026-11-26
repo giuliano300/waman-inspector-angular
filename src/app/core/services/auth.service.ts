@@ -1,11 +1,10 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Inspector } from '../models/inspector.models';
 import { InspectionService } from './inspection.service';
 import { API_BASE } from '../api.config';
-import { DeviceIdentityService } from './device-identity.service';
 
 export const SESSION_KEY = 'waman-inspector-session';
 
@@ -16,20 +15,17 @@ interface StoredSession { inspector: Inspector; token: string; }
 export class AuthService {
   private readonly stored = this.readSession();
   readonly currentInspector = signal<Inspector | null>(this.stored?.inspector ?? null);
-  readonly loginError = signal<'credentials' | 'device' | 'network' | null>(null);
 
-  constructor(private http: HttpClient, private router: Router, private inspections: InspectionService, private device: DeviceIdentityService) {}
+  constructor(private http: HttpClient, private router: Router, private inspections: InspectionService) {}
 
   isAuthenticated(): boolean { return !!this.currentInspector() && !!this.token(); }
   token(): string | null { return this.readSession()?.token ?? null; }
 
   async login(email: string, password: string): Promise<boolean> {
-    this.loginError.set(null);
-    if (!this.device.deviceId()) { this.loginError.set('device'); return false; }
-    if (!email.trim() || !password.trim()) { this.loginError.set('credentials'); return false; }
+    if (!email.trim() || !password.trim()) return false;
     try {
-      const response = await firstValueFrom(this.http.post<ApiInspector>(`${API_BASE}/Inspectors/Login`, { email: email.trim(), pwd: password, deviceId: this.device.deviceId() }));
-      if (!response?.id || !response.authToken) { this.loginError.set('credentials'); return false; }
+      const response = await firstValueFrom(this.http.post<ApiInspector>(`${API_BASE}/Inspectors/Login`, { email: email.trim(), pwd: password }));
+      if (!response?.id || !response.authToken) return false;
       const inspector: Inspector = {
         id: response.id,
         name: response.name,
@@ -41,15 +37,12 @@ export class AuthService {
       this.inspections.reset();
       this.currentInspector.set(inspector);
       return true;
-    } catch (error) {
-      this.loginError.set(error instanceof HttpErrorResponse && error.status === 403 ? 'device' : 'network');
-      return false;
-    }
+    } catch { return false; }
   }
 
   async restoreSession(): Promise<boolean> {
     const session = this.readSession();
-    if (!session?.token || !session.inspector || !this.device.deviceId()) return false;
+    if (!session?.token || !session.inspector) return false;
     try {
       await firstValueFrom(this.http.get(`${API_BASE}/Inspectors/${session.inspector.id}`));
       this.currentInspector.set(session.inspector);
