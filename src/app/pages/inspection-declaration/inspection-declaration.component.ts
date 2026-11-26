@@ -46,6 +46,8 @@ export class InspectionDeclarationComponent implements OnInit {
           await this.tracking.stopMission();
         } catch (trackingError) {
           console.error('GPS tracking could not be closed through the API.', trackingError);
+          this.error = 'The inspection was closed, but the GPS file could not be generated. Press Close inspection again to retry.';
+          return;
         }
       }
       await this.router.navigate(['/inspection', this.id, 'report']);
