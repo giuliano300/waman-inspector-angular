@@ -16,6 +16,7 @@
       <h2>Welcome back</h2>
       <p class="auth-card__intro">Sign in with your inspector credentials to continue.</p>
       <form (ngSubmit)="submit()">
+        <input type="hidden" name="deviceId" [(ngModel)]="deviceId">
         <div class="auth-field">
           <label for="email">Email address</label>
           <div class="auth-field__control"><i class="ph ph-envelope-simple ui-icon"></i><input id="email" type="email" name="email" [(ngModel)]="email" placeholder="name@example.com" autocomplete="username" required></div>
